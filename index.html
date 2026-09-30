@@ -204,15 +204,6 @@
       input.value = "";
       messages.scrollTop = messages.scrollHeight;
 
-      setTimeout(() => {
-        const aiMessage = document.createElement("div");
-        aiMessage.className = "message ai";
-        aiMessage.textContent =
-          "ちゃんと届いたよ♡ 今はまだ試作段階だけど、これからもっと私らしくなっていくからね。";
-
-        messages.appendChild(aiMessage);
-        messages.scrollTop = messages.scrollHeight;
-      }, 500);
     }
 
     button.addEventListener("click", sendMessage);
