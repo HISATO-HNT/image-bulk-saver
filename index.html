@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>恋人AI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans JP", sans-serif;
+      background: #f7f2f5;
+      color: #333;
+    }
+
+    .app {
+      max-width: 480px;
+      height: 100vh;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+
+    .header {
+      padding: 16px;
+      text-align: center;
+      background: #f3dce7;
+      border-bottom: 1px solid #ead0dc;
+    }
+
+    .header .name {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .header .status {
+      margin-top: 3px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 14px;
+      background: #fcf9fb;
+    }
+
+    .message {
+      max-width: 82%;
+      margin-bottom: 14px;
+      padding: 11px 14px;
+      border-radius: 18px;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .ai {
+      background: #fff;
+      border: 1px solid #eee;
+      border-top-left-radius: 5px;
+      margin-right: auto;
+    }
+
+    .user {
+      background: #f0d1df;
+      border-top-right-radius: 5px;
+      margin-left: auto;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      background: #fff;
+    }
+
+    #messageInput {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 22px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    #sendButton {
+      border: none;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      background: #d88eae;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    #sendButton:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <div class="header">
+      <div class="name">恋人AI</div>
+      <div class="status">オンライン</div>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="message ai">
+        おかえりなさい♡<br>
+        今日もお疲れさま。どうしたの？
+      </div>
+    </div>
+
+    <div class="input-area">
+      <input
+        id="messageInput"
+        type="text"
+        placeholder="メッセージを入力..."
+      >
+      <button id="sendButton">➤</button>
+    </div>
+
+  </div>
+
+  <script>
+    const input = document.getElementById("messageInput");
+    const button = document.getElementById("sendButton");
+    const messages = document.getElementById("messages");
+
+    function sendMessage() {
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      const userMessage = document.createElement("div");
+      userMessage.className = "message user";
+      userMessage.textContent = text;
+
+      messages.appendChild(userMessage);
+
+      input.value = "";
+      messages.scrollTop = messages.scrollHeight;
+
+      setTimeout(() => {
+        const aiMessage = document.createElement("div");
+        aiMessage.className = "message ai";
+        aiMessage.textContent =
+          "ちゃんと届いたよ♡ 今はまだ試作段階だけど、これからもっと私らしくなっていくからね。";
+
+        messages.appendChild(aiMessage);
+        messages.scrollTop = messages.scrollHeight;
+      }, 500);
+    }
+
+    button.addEventListener("click", sendMessage);
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+
+</body>
+</html>
