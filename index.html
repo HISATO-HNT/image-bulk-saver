@@ -140,7 +140,57 @@
     const button = document.getElementById("sendButton");
     const messages = document.getElementById("messages");
 
-    function sendMessage() {
+    function sendMessage() {async function sendMessage() {
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  const userMessage = document.createElement("div");
+  userMessage.className = "message user";
+  userMessage.textContent = text;
+
+  messages.appendChild(userMessage);
+
+  input.value = "";
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const response = await fetch(
+      "https://kindroid-proxy.mikawa-hisato.workers.dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          kinId: "iyKCUBjMuh3jky5ToiZC",
+          message: text
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    const aiMessage = document.createElement("div");
+    aiMessage.className = "message ai";
+    aiMessage.textContent =
+      data.reply || data.message || "うまく返事を受け取れなかったみたい…🥺";
+
+    messages.appendChild(aiMessage);
+    messages.scrollTop = messages.scrollHeight;
+
+  } catch (error) {
+    console.error(error);
+
+    const aiMessage = document.createElement("div");
+    aiMessage.className = "message ai";
+    aiMessage.textContent =
+      "ごめん、ちょっと通信でつまずいちゃったみたい🥺";
+
+    messages.appendChild(aiMessage);
+    messages.scrollTop = messages.scrollHeight;
+  }
+}
       const text = input.value.trim();
 
       if (!text) return;
