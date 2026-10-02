@@ -889,6 +889,7 @@ if (reply) {
           "ごめん、ちょっと通信でつまずいちゃった🥺";
 
 // MAOの返事が届いたら嬉しそうにリアクション
+// MAOの返事の内容に合わせてリアクション
 if (reply) {
   const mao = document.getElementById("maoImage");
 
@@ -897,11 +898,40 @@ if (reply) {
 
     void mao.offsetWidth;
 
-    mao.classList.add("mao-reply");
+    // 甘えたり、距離が近い返事 → 近づく
+    if (
+      reply.includes("好き") ||
+      reply.includes("会いたい") ||
+      reply.includes("ぎゅ") ||
+      reply.includes("そばに")
+    ) {
+      mao.classList.add("mao-approach");
 
-    setTimeout(() => {
-      mao.classList.remove("mao-reply");
-    }, 900);
+      setTimeout(() => {
+        mao.classList.remove("mao-approach");
+      }, 1800);
+
+    // ちょっと拗ねた返事 → 身体を傾ける
+    } else if (
+      reply.includes("もう") ||
+      reply.includes("ひどい") ||
+      reply.includes("むー") ||
+      reply.includes("ぷん")
+    ) {
+      mao.classList.add("mao-tilt");
+
+      setTimeout(() => {
+        mao.classList.remove("mao-tilt");
+      }, 1800);
+
+    // それ以外 → 嬉しそうに反応
+    } else {
+      mao.classList.add("mao-reply");
+
+      setTimeout(() => {
+        mao.classList.remove("mao-reply");
+      }, 900);
+    }
   }
 }
 
