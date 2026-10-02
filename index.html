@@ -512,6 +512,21 @@
   animation: maoTilt 1.8s ease-in-out;
 }
 
+/* ===== MAO 話しかけると少し近づく ===== */
+
+#maoImage.mao-approach {
+  animation: maoApproach 0.8s ease-out forwards;
+}
+
+@keyframes maoApproach {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(-5px) scale(1.035);
+  }
+}
 @keyframes maoTilt {
   0%, 100% {
     transform: translateX(-50%) translateY(0) rotate(0deg);
@@ -733,6 +748,21 @@
         return;
       }
 
+      // MAOが話しかけられたことに反応して少し近づく
+const mao = document.getElementById("maoImage");
+
+if (mao) {
+  mao.classList.remove("mao-tilt");
+  mao.classList.remove("mao-approach");
+
+  void mao.offsetWidth;
+
+  mao.classList.add("mao-approach");
+
+  setTimeout(() => {
+    mao.classList.remove("mao-approach");
+  }, 1800);
+}
       addMessage(text, "user");
 
       input.value = "";
