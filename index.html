@@ -2,168 +2,692 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>恋人AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MAO Room</title>
 
   <style>
     * {
       box-sizing: border-box;
     }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans JP", sans-serif;
-      background: #f7f2f5;
-      color: #333;
+    :root {
+      --glass: rgba(18, 16, 22, 0.48);
+      --glass-strong: rgba(18, 16, 22, 0.68);
+      --line: rgba(255,255,255,0.14);
+      --text: #fff;
+      --subtext: rgba(255,255,255,0.72);
+      --accent: #ef9fbe;
     }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans JP", sans-serif;
+      background: #17141b;
+      color: var(--text);
+    }
+
+    /* ===== MAO ROOM 全体 ===== */
 
     .app {
-      max-width: 480px;
-      height: 100vh;
-      margin: 0 auto;
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #211c24;
+    }
+
+    /* ===== 背景レイヤー ===== */
+
+    .room-background {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 35% 35%, rgba(255,205,218,.18), transparent 35%),
+        linear-gradient(135deg, #4c3b47 0%, #27212a 55%, #161419 100%);
+      transition: filter 1.2s ease, background 1.2s ease;
+    }
+
+    .room-background.romantic {
+      background:
+        radial-gradient(circle at 30% 55%, rgba(255,142,168,.18), transparent 32%),
+        linear-gradient(135deg, #38262f 0%, #20191f 58%, #100e11 100%);
+      filter: brightness(.78);
+    }
+
+    /* ===== MAO表示レイヤー ===== */
+
+    .mao-stage {
+      position: absolute;
+      z-index: 2;
+      left: 0;
+      top: 0;
+      width: 70%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .mao-placeholder {
+      position: relative;
+      width: min(58vh, 500px);
+      height: 82vh;
+      max-height: 900px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      opacity: .95;
+      transform-origin: bottom center;
+      animation: idleBreath 5s ease-in-out infinite;
+    }
+
+    .mao-placeholder .silhouette {
+      font-size: clamp(130px, 22vw, 300px);
+      line-height: 1;
+      filter: drop-shadow(0 18px 35px rgba(0,0,0,.25));
+    }
+
+    .mao-placeholder .temporary-label {
+      margin-top: 14px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      background: rgba(0,0,0,.3);
+      backdrop-filter: blur(8px);
+      font-size: 13px;
+      color: rgba(255,255,255,.8);
+    }
+
+    @keyframes idleBreath {
+      0%,100% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-3px) scale(1.004);
+      }
+    }
+
+    /* 後からMAO画像を入れる場所 */
+    #maoImage {
+      display: none;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 92%;
+      max-height: 96%;
+      object-fit: contain;
+      object-position: bottom center;
+      filter: drop-shadow(0 18px 35px rgba(0,0,0,.28));
+    }
+
+    /* ===== 上部ステータス ===== */
+
+    .top-status {
+      position: absolute;
+      z-index: 6;
+      top: 18px;
+      left: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 13px;
+      border-radius: 22px;
+      background: rgba(0,0,0,.26);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .online-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #68e596;
+      box-shadow: 0 0 9px rgba(104,229,150,.65);
+    }
+
+    .top-name {
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .top-state {
+      font-size: 11px;
+      color: var(--subtext);
+    }
+
+    /* ===== 演出レイヤー ===== */
+
+    .effect-layer {
+      position: absolute;
+      z-index: 4;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .mode-notice {
+      position: absolute;
+      left: 35%;
+      bottom: 32px;
+      transform: translateX(-50%) translateY(12px);
+      padding: 9px 16px;
+      border-radius: 20px;
+      background: rgba(0,0,0,.4);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transition: .35s ease;
+      font-size: 13px;
+    }
+
+    .mode-notice.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== PC チャット ===== */
+
+    .chat-panel {
+      position: absolute;
+      z-index: 10;
+      right: 0;
+      top: 0;
+      width: 30%;
+      min-width: 330px;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      background: #fff;
+      background: var(--glass);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-left: 1px solid var(--line);
+      box-shadow: -12px 0 40px rgba(0,0,0,.12);
     }
 
-    .header {
-      padding: 16px;
-      text-align: center;
-      background: #f3dce7;
-      border-bottom: 1px solid #eadedc;
+    .chat-header {
+      flex: 0 0 auto;
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--line);
     }
 
-    .header .name {
-      font-size: 20px;
+    .chat-title {
       font-weight: 700;
+      font-size: 15px;
     }
 
-    .header .status {
+    .chat-subtitle {
       margin-top: 3px;
-      font-size: 12px;
-      color: #777;
+      font-size: 11px;
+      color: var(--subtext);
     }
+
+    /* ===== 会話 ===== */
 
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 14px;
-      background: #fcf9fb;
+      padding: 16px 17px 24px;
+      scroll-behavior: smooth;
+      mask-image: linear-gradient(to bottom, transparent 0, black 7%, black 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 7%, black 100%);
     }
 
     .message {
-      max-width: 82%;
-      margin-bottom: 14px;
-      padding: 11px 14px;
-      border-radius: 18px;
-      line-height: 1.6;
-      font-size: 15px;
+      margin: 0 0 16px;
+      line-height: 1.55;
+      font-size: 14px;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
+      text-shadow: 0 1px 3px rgba(0,0,0,.35);
+      animation: messageIn .22s ease;
     }
 
-    .ai {
-      background: #fff;
-      border: 1px solid #eee;
-      border-top-left-radius: 5px;
-      margin-right: auto;
+    @keyframes messageIn {
+      from {
+        opacity: 0;
+        transform: translateY(7px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    .user {
-      background: #efd1df;
-      border-top-right-radius: 5px;
-      margin-left: auto;
+    .speaker {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .03em;
     }
+
+    .message.ai .speaker {
+      color: #ffc5da;
+    }
+
+    .message.user .speaker {
+      color: #a9d6ff;
+    }
+
+    .message.user {
+      color: rgba(255,255,255,.84);
+    }
+
+    /* ===== ムード切替 ===== */
+
+    .mood-area {
+      flex: 0 0 auto;
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      background: rgba(0,0,0,.12);
+    }
+
+    .mood-title {
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: rgba(255,255,255,.78);
+    }
+
+    .mood-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mood-button {
+      border: 1px solid rgba(255,255,255,.17);
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      border-radius: 18px;
+      padding: 7px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .mood-button:hover {
+      background: rgba(255,255,255,.16);
+    }
+
+    .mood-button.active {
+      background: rgba(239,159,190,.25);
+      border-color: rgba(255,188,214,.55);
+    }
+
+    /* ===== 入力 ===== */
 
     .input-area {
+      flex: 0 0 auto;
       display: flex;
       gap: 8px;
-      padding: 10px;
-      border-top: 1px solid #eee;
-      background: #fff;
+      padding: 11px 12px calc(11px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: var(--glass-strong);
     }
 
     #messageInput {
       flex: 1;
       min-width: 0;
-      padding: 12px 14px;
-      border: 1px solid #ddd;
-      border-radius: 22px;
-      font-size: 15px;
+      height: 44px;
+      padding: 0 15px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 23px;
       outline: none;
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      font-size: 14px;
+    }
+
+    #messageInput::placeholder {
+      color: rgba(255,255,255,.52);
+    }
+
+    #messageInput:focus {
+      border-color: rgba(255,190,215,.6);
+      background: rgba(255,255,255,.14);
     }
 
     #sendButton {
+      flex: 0 0 44px;
+      width: 44px;
+      height: 44px;
       border: none;
       border-radius: 50%;
-      width: 46px;
-      height: 46px;
-      background: #d88eae;
-      color: white;
-      font-size: 18px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 17px;
       cursor: pointer;
     }
 
     #sendButton:disabled {
-      opacity: 0.5;
+      opacity: .45;
       cursor: default;
     }
 
     #sendButton:active {
-      transform: scale(0.95);
+      transform: scale(.94);
+    }
+
+    /* ===== スマホ：TikTok LIVE風 ===== */
+
+    @media (max-width: 760px) {
+
+      .mao-stage {
+        width: 100%;
+      }
+
+      .mao-placeholder {
+        height: 79vh;
+        width: 90vw;
+      }
+
+      .top-status {
+        top: max(12px, env(safe-area-inset-top));
+        left: 12px;
+      }
+
+      .chat-panel {
+        top: auto;
+        bottom: 0;
+        width: 100%;
+        min-width: 0;
+        height: 48%;
+        background:
+          linear-gradient(
+            to bottom,
+            rgba(10,8,12,0),
+            rgba(10,8,12,.22) 15%,
+            rgba(10,8,12,.58) 62%,
+            rgba(10,8,12,.74) 100%
+          );
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border-left: 0;
+        box-shadow: none;
+        pointer-events: none;
+      }
+
+      .chat-header {
+        display: none;
+      }
+
+      .messages {
+        padding: 35px 14px 8px;
+        mask-image: linear-gradient(to bottom, transparent, black 25%);
+        -webkit-mask-image: linear-gradient(to bottom, transparent, black 25%);
+        pointer-events: auto;
+      }
+
+      .message {
+        max-width: 88%;
+        margin-bottom: 10px;
+        font-size: 13px;
+      }
+
+      .mood-area {
+        margin: 0 10px 7px;
+        padding: 8px 9px;
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 15px;
+        background: rgba(10,8,12,.36);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        pointer-events: auto;
+      }
+
+      .mood-title {
+        margin-bottom: 6px;
+        font-size: 10px;
+      }
+
+      .mood-buttons {
+        flex-wrap: nowrap;
+      }
+
+      .mood-button {
+        flex: 1;
+        padding: 7px 5px;
+        font-size: 10px;
+      }
+
+      .input-area {
+        margin: 0;
+        padding:
+          8px 10px
+          calc(9px + env(safe-area-inset-bottom));
+        background: rgba(10,8,12,.52);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        pointer-events: auto;
+      }
+
+      #messageInput {
+        background: rgba(255,255,255,.12);
+      }
+
+      .mode-notice {
+        left: 50%;
+        bottom: 52%;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="app">
+  <main class="app" id="app">
 
-    <div class="header">
-      <div class="name">MAO</div>
-      <div class="status">オンライン</div>
-    </div>
+    <!-- 背景 -->
+    <div class="room-background" id="roomBackground"></div>
 
-    <div class="messages" id="messages">
-      <div class="message ai">
-        おかえりなさい♡<br>
-        今日もお疲れさま。どうしたの？
+    <!-- MAO -->
+    <section class="mao-stage" id="maoStage">
+
+      <!-- 仮表示。あとでMAO画像/動画へ交換 -->
+      <div class="mao-placeholder" id="maoPlaceholder">
+        <div class="silhouette">♡</div>
+        <div class="temporary-label">
+          MAOの立ち絵をここに表示
+        </div>
+      </div>
+
+      <img id="maoImage" alt="MAO">
+
+    </section>
+
+    <!-- MAOの状態 -->
+    <div class="top-status">
+      <span class="online-dot"></span>
+
+      <div>
+        <div class="top-name">MAO</div>
+        <div class="top-state" id="maoStatus">
+          こっちを見ている
+        </div>
       </div>
     </div>
 
-    <div class="input-area">
-      <input
-        id="messageInput"
-        type="text"
-        placeholder="メッセージを入力..."
-        autocomplete="off"
-      >
-      <button id="sendButton" type="button">➤</button>
+    <!-- 将来の演出用 -->
+    <div class="effect-layer" id="effectLayer">
+      <div class="mode-notice" id="modeNotice"></div>
     </div>
 
-  </div>
+    <!-- チャット -->
+    <aside class="chat-panel">
+
+      <header class="chat-header">
+        <div class="chat-title">MAO</div>
+        <div class="chat-subtitle">
+          ふたりの時間
+        </div>
+      </header>
+
+      <div class="messages" id="messages">
+
+        <div class="message ai">
+          <span class="speaker">MAO</span>
+          おかえり♡ 来てくれたんやね。
+        </div>
+
+      </div>
+
+      <!-- ムード -->
+      <section class="mood-area">
+
+        <div class="mood-title">
+          どのムードのMAOがいい気分？
+        </div>
+
+        <div class="mood-buttons">
+
+          <button
+            class="mood-button active"
+            data-mode="weekday"
+            type="button"
+          >
+            ● 平日の日常
+          </button>
+
+          <button
+            class="mood-button"
+            data-mode="holiday"
+            type="button"
+          >
+            ● 休日の日常
+          </button>
+
+          <button
+            class="mood-button"
+            data-mode="romantic"
+            type="button"
+          >
+            ● MAOと…♡
+          </button>
+
+        </div>
+      </section>
+
+      <!-- 入力 -->
+      <div class="input-area">
+
+        <input
+          id="messageInput"
+          type="text"
+          placeholder="MAOに話しかける..."
+          autocomplete="off"
+        >
+
+        <button
+          id="sendButton"
+          type="button"
+          aria-label="送信"
+        >
+          ➤
+        </button>
+
+      </div>
+
+    </aside>
+
+  </main>
 
   <script>
-    const input = document.getElementById("messageInput");
-    const button = document.getElementById("sendButton");
-    const messages = document.getElementById("messages");
+
+    /* =========================================
+       MAO ROOM STATE
+       後からモーション・衣装・音声と接続する
+    ========================================= */
+
+    const roomState = {
+      mode: "weekday",
+      lighting: "normal"
+    };
+
+    const maoState = {
+      mood: "normal",
+      outfit: "weekday",
+      motion: "idle",
+      speaking: false,
+      onScreen: true
+    };
+
+
+    /* =========================================
+       ELEMENTS
+    ========================================= */
+
+    const input =
+      document.getElementById("messageInput");
+
+    const button =
+      document.getElementById("sendButton");
+
+    const messages =
+      document.getElementById("messages");
+
+    const roomBackground =
+      document.getElementById("roomBackground");
+
+    const maoStatus =
+      document.getElementById("maoStatus");
+
+    const modeNotice =
+      document.getElementById("modeNotice");
+
+
+    /* =========================================
+       KINDROID / CLOUDFLARE
+       現在動作している通信方式を維持
+    ========================================= */
 
     const API_URL =
       "https://kindroid-proxy.mikawa-hisato.workers.dev";
 
-    function addMessage(text, type) {
-      const message = document.createElement("div");
 
-      message.className = "message " + type;
-      message.textContent = text;
+    /* =========================================
+       CHAT
+    ========================================= */
+
+    function addMessage(text, type) {
+
+      const message =
+        document.createElement("div");
+
+      message.className =
+        "message " + type;
+
+      const speaker =
+        document.createElement("span");
+
+      speaker.className = "speaker";
+
+      speaker.textContent =
+        type === "ai" ? "MAO" : "YOU";
+
+      message.appendChild(speaker);
+
+      message.appendChild(
+        document.createTextNode(text)
+      );
 
       messages.appendChild(message);
-      messages.scrollTop = messages.scrollHeight;
+
+      messages.scrollTop =
+        messages.scrollHeight;
 
       return message;
     }
 
+
     async function sendMessage() {
+
       const text = input.value.trim();
 
       if (!text || button.disabled) {
@@ -175,41 +699,59 @@
       input.value = "";
       button.disabled = true;
 
-      const waitingMessage = addMessage(
-        "MAOが返事を考えています…",
-        "ai"
-      );
+      maoStatus.textContent =
+        "返事を考えている…";
+
+      const waitingMessage =
+        addMessage(
+          "ちょっと待ってな…",
+          "ai"
+        );
 
       try {
-        const response = await fetch(API_URL, {
-          method: "POST",
 
-          headers: {
-            "Content-Type": "application/json"
-          },
+        const response =
+          await fetch(API_URL, {
 
-          body: JSON.stringify({
-            message: text
-          })
-        });
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              message: text
+            })
+
+          });
+
 
         let data;
 
         try {
+
           data = await response.json();
+
         } catch {
+
           throw new Error(
             "サーバーから正しいJSONが返ってきませんでした"
           );
+
         }
 
+
         if (!response.ok) {
+
           throw new Error(
             data?.error ||
             data?.details ||
             "HTTP " + response.status
           );
+
         }
+
 
         const reply =
           data?.reply ??
@@ -217,28 +759,205 @@
           data?.response ??
           data?.text;
 
-        waitingMessage.textContent =
-          reply || "うまく返事を受け取れなかったみたい…";
+
+        waitingMessage.childNodes[
+          waitingMessage.childNodes.length - 1
+        ].textContent =
+          reply ||
+          "うまく返事を受け取れなかったみたい…";
+
+
+        maoStatus.textContent =
+          "こっちを見ている";
+
 
       } catch (error) {
+
         console.error(error);
 
-        waitingMessage.textContent =
+        waitingMessage.childNodes[
+          waitingMessage.childNodes.length - 1
+        ].textContent =
           "ごめん、ちょっと通信でつまずいちゃった🥺";
+
+        maoStatus.textContent =
+          "通信を確認中";
+
+
       } finally {
+
         button.disabled = false;
         input.focus();
+
       }
     }
 
-    button.addEventListener("click", sendMessage);
 
-    input.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !event.isComposing) {
-        event.preventDefault();
-        sendMessage();
+    button.addEventListener(
+      "click",
+      sendMessage
+    );
+
+
+    input.addEventListener(
+      "keydown",
+      (event) => {
+
+        if (
+          event.key === "Enter" &&
+          !event.isComposing
+        ) {
+
+          event.preventDefault();
+          sendMessage();
+
+        }
       }
+    );
+
+
+    /* =========================================
+       MOOD SYSTEM
+       v1ではUIと状態だけ変更。
+       後でKindroidへのモード通知、
+       着替え・退場モーション等を接続する。
+    ========================================= */
+
+    const moodButtons =
+      document.querySelectorAll(
+        ".mood-button"
+      );
+
+
+    moodButtons.forEach((moodButton) => {
+
+      moodButton.addEventListener(
+        "click",
+        () => {
+
+          const mode =
+            moodButton.dataset.mode;
+
+          setMood(mode);
+
+        }
+      );
+
     });
+
+
+    function setMood(mode) {
+
+      roomState.mode = mode;
+
+      moodButtons.forEach((button) => {
+
+        button.classList.toggle(
+          "active",
+          button.dataset.mode === mode
+        );
+
+      });
+
+
+      if (mode === "weekday") {
+
+        roomState.lighting = "normal";
+        maoState.outfit = "weekday";
+
+        roomBackground.classList.remove(
+          "romantic"
+        );
+
+        showModeNotice(
+          "平日の日常"
+        );
+
+      }
+
+
+      if (mode === "holiday") {
+
+        roomState.lighting = "normal";
+        maoState.outfit = "holiday";
+
+        roomBackground.classList.remove(
+          "romantic"
+        );
+
+        showModeNotice(
+          "休日の日常"
+        );
+
+      }
+
+
+      if (mode === "romantic") {
+
+        roomState.lighting = "indirect";
+        maoState.outfit = "romantic";
+
+        roomBackground.classList.add(
+          "romantic"
+        );
+
+        showModeNotice(
+          "MAOと…♡"
+        );
+
+      }
+
+      console.log(
+        "roomState:",
+        roomState
+      );
+
+      console.log(
+        "maoState:",
+        maoState
+      );
+    }
+
+
+    function showModeNotice(text) {
+
+      modeNotice.textContent = text;
+
+      modeNotice.classList.add("show");
+
+      clearTimeout(
+        showModeNotice.timer
+      );
+
+      showModeNotice.timer =
+        setTimeout(() => {
+
+          modeNotice.classList.remove(
+            "show"
+          );
+
+        }, 1800);
+    }
+
+
+    /* =========================================
+       FUTURE HOOKS
+
+       ここへ今後追加予定：
+
+       playIdleMotion()
+       walkOffScreen()
+       changeOutfit()
+       playClothesRustle()
+       playHum()
+       playMaoMumble()
+       returnToScreen()
+       switchRoomLighting()
+       startLipSync()
+       stopLipSync()
+
+    ========================================= */
+
   </script>
 
 </body>
