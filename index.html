@@ -478,6 +478,34 @@
         bottom: 52%;
       }
     }
+  /* ===== MAO 待機モーション ===== */
+
+#maoImage {
+  transform-origin: 50% 100%;
+  animation: maoIdle 5s ease-in-out infinite;
+}
+
+@keyframes maoIdle {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  25% {
+    transform: translateX(-50%) translateY(-2px) scale(1.002, 1.004);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(-4px) scale(1.004, 1.008);
+  }
+
+  75% {
+    transform: translateX(-50%) translateY(-2px) scale(1.002, 1.004);
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
   </style>
 </head>
 
