@@ -536,6 +536,29 @@
     transform: translateX(-50%) translateY(-2px) rotate(1.2deg);
   }
 }
+    /* ===== MAO 返事が来たら嬉しそうに反応 ===== */
+
+#maoImage.mao-reply {
+  animation: maoReply 0.9s ease-in-out;
+}
+
+@keyframes maoReply {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  30% {
+    transform: translateX(-50%) translateY(-7px) scale(1.012) rotate(-0.5deg);
+  }
+
+  60% {
+    transform: translateX(-50%) translateY(-3px) scale(1.008) rotate(0.5deg);
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1) rotate(0deg);
+  }
+}
   </style>
 </head>
 
@@ -828,6 +851,7 @@ if (mao) {
           data?.response ??
           data?.text;
 
+      
 
         waitingMessage.childNodes[
           waitingMessage.childNodes.length - 1
@@ -839,7 +863,22 @@ if (mao) {
         maoStatus.textContent =
           "こっちを見ている";
 
+// MAOの返事が届いたら嬉しそうにリアクション
+if (reply) {
+  const mao = document.getElementById("maoImage");
 
+  if (mao) {
+    mao.classList.remove("mao-tilt", "mao-approach", "mao-reply");
+
+    void mao.offsetWidth;
+
+    mao.classList.add("mao-reply");
+
+    setTimeout(() => {
+      mao.classList.remove("mao-reply");
+    }, 900);
+  }
+}
       } catch (error) {
 
         console.error(error);
@@ -849,6 +888,24 @@ if (mao) {
         ].textContent =
           "ごめん、ちょっと通信でつまずいちゃった🥺";
 
+// MAOの返事が届いたら嬉しそうにリアクション
+if (reply) {
+  const mao = document.getElementById("maoImage");
+
+  if (mao) {
+    mao.classList.remove("mao-tilt", "mao-approach", "mao-reply");
+
+    void mao.offsetWidth;
+
+    mao.classList.add("mao-reply");
+
+    setTimeout(() => {
+      mao.classList.remove("mao-reply");
+    }, 900);
+  }
+}
+
+maoStatus.textContent =
         maoStatus.textContent =
           "通信を確認中";
 
